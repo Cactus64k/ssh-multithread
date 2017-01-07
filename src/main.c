@@ -3,8 +3,9 @@
 static int parse_opt(int key, char* arg, struct argp_state* state);
 char* machines_list_path	= NULL;
 char* script_path			= NULL;
+char* folder_path			= NULL;
 int threads_count			= 2;
-int timeout					= 2;
+int timeout					= 3000;
 
 int main(int argc, char **argv)
 {
@@ -12,30 +13,30 @@ int main(int argc, char **argv)
 	setbuf(stderr, NULL);
 
 	static struct argp_option options[] = {
-	{"script" ,				's',	"file",	0,	"Script to exec on remote machine"},
-	{"threads" ,			'c',	"2",	0,	"Count of using threads"},
-	{"machines" ,			'l',	"file",	0,	"File with machines list"},
-	{"timeout" ,			't',	"2",	0,	"Timeout execution in seconds"},
-	{0}
-	};
+	{"script" ,				's',	"path",	0,	"Script to exec on remote machine",	0},
+	{"threads" ,			'c',	"2",	0,	"Count of using threads",			0},
+	{"machines" ,			'l',	"file",	0,	"File with machines list",			0},
+	{"timeout" ,			't',	"2",	0,	"Timeout execution in seconds",		0},
+	{"output_folder" ,		'f',	"path",	0,	"Folder for output files",			0},
+	{0}};
 
-	struct argp argp = { options, parse_opt };
+	struct argp argp = {0};
+	argp.options	= options;
+	argp.parser		= parse_opt;
 
 	argp_parse (&argp, argc, argv, 0, 0, NULL);
 
 	if(machines_list_path == NULL || script_path == NULL)
 	{
-		fprintf(stderr, "ERROR: --script and --machiles should have arguments\n");
-		exit(EXIT_FAILURE);
+		fprintf(stderr, "\nERROR: --script and --machines should have arguments\n");
+		return EXIT_FAILURE;
 	}
 	else
 	{
 		MACHINE* list = NULL;
 		machine_list(machines_list_path, &list);
 
-		machine_connect(list);
-
-		JOB* job = machine_create_job(threads_count, list, NULL);
+		JOB* job = machine_create_job((size_t)threads_count, list, script_path, folder_path, timeout);
 		machine_start_job(job);
 
 		machine_list_free(list);
@@ -51,17 +52,35 @@ static int parse_opt (int key, char* arg, struct argp_state* state)
 {
 	switch (key)
 	{
+		case 's':
+		{
+			FILE* f = fopen(arg, "r");
+			if(f != NULL)
+			{
+				size_t arg_len = strlen(arg);
+				script_path = malloc(arg_len+1);
+				memcpy(script_path, arg, arg_len+1);
+
+				fclose(f);
+			}
+			else
+			{
+				fprintf(stderr, "\nERROR: Failed to open file %s\n", arg);
+				exit(EXIT_FAILURE);
+			}
+			break;
+		}
 		case 'c':
 		{
 			if(sscanf(arg, "%d", &threads_count) != 1)
 			{
-				fprintf(stderr, "ERROR: Failed to parse threads count %s\n", arg);
+				fprintf(stderr, "\nERROR: Failed to parse threads count %s\n", arg);
 				exit(EXIT_FAILURE);
 			}
 
 			if(threads_count > 64)
 			{
-				fprintf(stderr, "ERROR: Too many threads. The maximum number of threads is 64\n");
+				fprintf(stderr, "\nERROR: Too many threads. The maximum number of threads is 64\n");
 				exit(EXIT_FAILURE);
 			}
 
@@ -80,7 +99,7 @@ static int parse_opt (int key, char* arg, struct argp_state* state)
 			}
 			else
 			{
-				fprintf(stderr, "ERROR: Failed to open file %s\n", arg);
+				fprintf(stderr, "\nERROR: Failed to open file %s\n", arg);
 				exit(EXIT_FAILURE);
 			}
 			break;
@@ -89,28 +108,34 @@ static int parse_opt (int key, char* arg, struct argp_state* state)
 		{
 			if(sscanf(arg, "%d", &timeout) != 1)
 			{
-				fprintf(stderr, "ERROR: Failed to parse timeout %s\n", arg);
+				fprintf(stderr, "\nERROR: Failed to parse timeout %s\n", arg);
 				exit(EXIT_FAILURE);
 			}
 
 			break;
 		}
-		case 's':
+		case 'f':
 		{
-			FILE* f = fopen(arg, "r");
-			if(f != NULL)
+			struct stat s;
+			if(stat(arg, &s) == -1)
 			{
-				size_t arg_len = strlen(arg);
-				script_path = malloc(arg_len+1);
-				memcpy(script_path, arg, arg_len+1);
-
-				fclose(f);
+				fprintf(stderr, "\nERROR: Folder %s do not exist\n", arg);
+				exit(EXIT_FAILURE);
 			}
 			else
 			{
-				fprintf(stderr, "ERROR: Failed to open file %s\n", arg);
-				exit(EXIT_FAILURE);
+				if(S_ISDIR(s.st_mode))
+				{
+					size_t arg_len = strlen(arg);
+					folder_path = malloc(arg_len+1);
+					memcpy(folder_path, arg, arg_len+1);
+				} else
+				{
+					fprintf(stderr, "\nERROR: %s is not a folder\n", arg);
+					exit(EXIT_FAILURE);
+				}
 			}
+
 			break;
 		}
 	}

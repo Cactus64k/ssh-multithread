@@ -46,7 +46,7 @@ int machine_list(const char* file_name, MACHINE** __list)
 				last			= machine;
 			}
 			else
-				fprintf(stderr, "ERROR: Failed to parsing string %s\n", buff);
+				fprintf(stderr, "\nERROR: Failed to parsing string %s\n", buff);
 		}
 	}
 	*__list = list;
