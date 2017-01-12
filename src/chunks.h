@@ -1,10 +1,3 @@
-/*
- * chunks.h
- *
- *  Created on: 18.12.2016
- *      Author: cactus
- */
-
 #ifndef CHUNKS_H_
 	#define CHUNKS_H_
 
@@ -14,6 +7,7 @@
 	#include <string.h>
 	#include <assert.h>
 	#include <stdbool.h>
+	#include <stdarg.h>
 
 	#include <argp.h>
 	#include <pthread.h>
@@ -55,10 +49,16 @@
 		const char* folder_path;
 	} JOB;
 
+	#define REMOTE_COMMAND "bash -c /tmp/ssh-multithread.script"
+	#define REMOTE_FILE_NAME "/tmp/ssh-multithread.script"
+
 	int machine_list(const char* file_name, MACHINE** __list);
 	int machine_list_free(MACHINE* list);
+	int machine_free(MACHINE* machine);
+	MACHINE* machine_create_new(const char* host, const char* user, const char* pass);
 
-	JOB* machine_create_job(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout);
+	JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout);
+	int machine_job_free(JOB* job);
 	int machine_start_job(JOB* job);
 
 	int machine_hndl(MACHINE* machine, const char* script_path, const char* output_folder, int timeout);

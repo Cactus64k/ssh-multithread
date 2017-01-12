@@ -23,6 +23,11 @@ int main(int argc, char **argv)
 	struct argp argp = {0};
 	argp.options	= options;
 	argp.parser		= parse_opt;
+	argp.doc		=	"Machine list format:"
+						"\n\nlogin:password@hostname\n"
+						"login2:password2@hostname2\n\n"
+						"Or login@hostname if you have public key authorisation. Each machine on a new line. Offline machines handled in main thread.";
+	//argp.args_doc	= "--arg=value";
 
 	argp_parse (&argp, argc, argv, 0, 0, NULL);
 
@@ -33,16 +38,21 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		ssh_init();
 		MACHINE* list = NULL;
 		machine_list(machines_list_path, &list);
 
-		JOB* job = machine_create_job((size_t)threads_count, list, script_path, folder_path, timeout);
+		JOB* job = machine_job_create((size_t)threads_count, list, script_path, folder_path, timeout);
 		machine_start_job(job);
 
-		machine_list_free(list);
+		printf("THREAD: freeing memory\n");
+		machine_job_free(job);
 
 		free(machines_list_path);
 		free(script_path);
+		free(folder_path);
+
+		ssh_finalize();
 	}
 
 	return EXIT_SUCCESS;
@@ -111,6 +121,8 @@ static int parse_opt (int key, char* arg, struct argp_state* state)
 				fprintf(stderr, "\nERROR: Failed to parse timeout %s\n", arg);
 				exit(EXIT_FAILURE);
 			}
+			else
+				timeout = timeout * 1000;
 
 			break;
 		}

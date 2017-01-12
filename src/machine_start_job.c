@@ -18,11 +18,15 @@ static void* worker(void* ptr)
 				item->status = MACHINE_EXECUTING;
 				pthread_mutex_unlock(mutex);
 
+				printf("THREAD: Handle machine %s\n", item->host);
 				machine_hndl(item, script_path, folder_path, timeout);
 			}
 		}
+
 		pthread_mutex_unlock(mutex);
 	}
+
+	fprintf(stdout, "THREAD: End\n");
 
 	return NULL;
 }
@@ -38,8 +42,14 @@ int machine_start_job(JOB* job)
 		assert(res == 0);
 	}
 
+	fprintf(stdout, "THREAD: Waiting all threads\n");
+	fflush(stdout);
+
 	for(size_t i=0; i<count; i++)
 		pthread_join(job->threads[i], NULL);
+
+	fprintf(stdout, "THREAD: All threads done\n");
+	fflush(stdout);
 
 	MACHINE* list = job->list;
 

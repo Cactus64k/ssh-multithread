@@ -22,20 +22,19 @@ int machine_list(const char* file_name, MACHINE** __list)
 
 			if(sscanf(buff, "%[a-zA-Z0-9]:%[a-zA-Z0-9]@%[a-zA-Z0-9]", user, pass, host) == 3)
 			{
-				MACHINE* machine	= malloc(sizeof(MACHINE));
-				assert(machine != NULL);
+				MACHINE* machine	= machine_create_new(host, user, pass);
+				machine->prev		= last;
 
-				machine->host		= malloc(strlen(host) + 1);
-				strcpy(machine->host, host);
+				if(list == NULL)
+					list		= machine;
+				else
+					last->next	= machine;
 
-				machine->user		= malloc(strlen(user) + 1);
-				strcpy(machine->user, user);
-
-				machine->pass		= malloc(strlen(pass) + 1);
-				strcpy(machine->pass, pass);
-
-				machine->status		= MACHINE_AVIABLE;
-				machine->next		= NULL;
+				last			= machine;
+			}
+			else if(sscanf(buff, "%[a-zA-Z0-9]@%[a-zA-Z0-9]", user, host) == 2)
+			{
+				MACHINE* machine	= machine_create_new(host, user, NULL);
 				machine->prev		= last;
 
 				if(list == NULL)
@@ -51,6 +50,8 @@ int machine_list(const char* file_name, MACHINE** __list)
 	}
 	*__list = list;
 
+	fclose(f);
+
 	return status;
 }
 
@@ -58,13 +59,11 @@ int machine_list_free(MACHINE* list)
 {
 	while(list != NULL)
 	{
-		char* name		= list->host;
 		MACHINE* cur	= list;
 
 		list = list->next;
 
-		free(name);
-		free(cur);
+		machine_free(cur);
 	}
 	return EXIT_SUCCESS;
 }

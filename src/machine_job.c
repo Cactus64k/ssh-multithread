@@ -1,6 +1,6 @@
 #include "chunks.h"
 
-JOB* machine_create_job(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout)
+JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout)
 {
 	JOB* job			= malloc(sizeof(JOB));
 	job->threads		= calloc(count, sizeof(pthread_t));
@@ -13,4 +13,18 @@ JOB* machine_create_job(size_t count, MACHINE* list, const char* script_path, co
 	pthread_mutex_init(&(job->mutex), NULL);
 
 	return job;
+}
+
+
+int machine_job_free(JOB* job)
+{
+	free(job->threads);
+
+	machine_list_free(job->list);
+
+	pthread_mutex_destroy(&(job->mutex));
+
+	free(job);
+
+	return EXIT_SUCCESS;
 }
