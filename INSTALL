@@ -1,0 +1,18 @@
+
+DEBIAN:
+################################################
+$ cd ~/
+$ git clone https://github.com/Cactus64k/ssh-multithread.git
+$ cd ssh-multithread
+$ fakeroot dpkg-buildpackage
+$ cd ..
+# dpkg -i ssh-multithread_*.deb
+
+ANOTHER SYSTEMS:
+################################################
+$ cd ~/
+$ git clone https://github.com/Cactus64k/ssh-multithread.git
+$ cd ssh-multithread
+$ cmake CMakeLists.txt
+$ make
+$ make install

@@ -44,6 +44,7 @@
 		pthread_t* threads;
 		size_t count;
 		int timeout;
+		bool wait_offline;
 		MACHINE* list;
 		const char* script_path;
 		const char* folder_path;
@@ -57,7 +58,7 @@
 	int machine_free(MACHINE* machine);
 	MACHINE* machine_create_new(const char* host, const char* user, const char* pass);
 
-	JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout);
+	JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout, bool wait_offline);
 	int machine_job_free(JOB* job);
 	int machine_start_job(JOB* job);
 

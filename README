@@ -1,0 +1,17 @@
+# ssh-multithread
+Tool to execute bash script in multiple remote machines.
+Script uploading in target machine in /tmp directory and then executed by the user specified in the list of machines.
+=====================================================
+
+Features:
+- multithreading processing machines
+- output of each machine in unique file
+- options for threads count, output folder
+
+Depends:
+- libssh-4			>= 0.6.3
+
+Build Depends:
+- libssh-dev		>= 0.6.3
+- debhelper			>= 9.0.0
+- cmake				>= 3.0.2

@@ -1,11 +1,12 @@
 #include "chunks.h"
 
-JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout)
+JOB* machine_job_create(size_t count, MACHINE* list, const char* script_path, const char* folder_path, int timeout, bool wait_offline)
 {
 	JOB* job			= malloc(sizeof(JOB));
 	job->threads		= calloc(count, sizeof(pthread_t));
 	job->count			= count;
 	job->timeout		= timeout;
+	job->wait_offline	= wait_offline;
 	job->list			= list;
 	job->script_path	= script_path;
 	job->folder_path	= folder_path;

@@ -6,6 +6,7 @@ char* script_path			= NULL;
 char* folder_path			= NULL;
 int threads_count			= 2;
 int timeout					= 3000;
+bool wait_offline			= true;
 
 int main(int argc, char **argv)
 {
@@ -18,6 +19,7 @@ int main(int argc, char **argv)
 	{"machines" ,			'l',	"file",	0,	"File with machines list",			0},
 	{"timeout" ,			't',	"2",	0,	"Timeout execution in seconds",		0},
 	{"output_folder" ,		'f',	"path",	0,	"Folder for output files",			0},
+	{"wait_offline" ,		'o',	"true",	0,	"Handle offline machines",			0},
 	{0}};
 
 	struct argp argp = {0};
@@ -42,7 +44,7 @@ int main(int argc, char **argv)
 		MACHINE* list = NULL;
 		machine_list(machines_list_path, &list);
 
-		JOB* job = machine_job_create((size_t)threads_count, list, script_path, folder_path, timeout);
+		JOB* job = machine_job_create((size_t)threads_count, list, script_path, folder_path, timeout, wait_offline);
 		machine_start_job(job);
 
 		printf("THREAD: freeing memory\n");
@@ -146,6 +148,20 @@ static int parse_opt (int key, char* arg, struct argp_state* state)
 					fprintf(stderr, "\nERROR: %s is not a folder\n", arg);
 					exit(EXIT_FAILURE);
 				}
+			}
+
+			break;
+		}
+		case 'o':
+		{
+			if(strcmp("false", arg) == 0)
+				wait_offline = false;
+			else if(strcmp("true", arg) == 0)
+				wait_offline = true;
+			else
+			{
+				fprintf(stderr, "\nERROR: unknown paramether in option --wait_offline=%s\n", arg);
+				exit(EXIT_FAILURE);
 			}
 
 			break;
