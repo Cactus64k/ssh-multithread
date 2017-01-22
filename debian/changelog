@@ -1,0 +1,5 @@
+ssh-multithread (1.0.0) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Cactus <medved_cool@mail.ru>  Sun, 15 Jan 2017 20:03:44 +0300

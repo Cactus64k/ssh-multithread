@@ -1,0 +1,13 @@
+Source: ssh-multithread
+Section: utils
+Priority: optional
+Maintainer: Cactus <medved_cool@mail.ru>
+Build-Depends: debhelper (>= 9), cmake, libssh-dev
+Standards-Version: 3.9.5
+Homepage: https://github.com/Cactus64k/ssh-multithread
+
+Package: ssh-multithread
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Tool to execute bash script in multiple remote machines.
+	Script uploading in target machine in /tmp directory and then executed by the user specified in the list of machines
