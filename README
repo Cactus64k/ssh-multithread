@@ -9,9 +9,9 @@ Features:
 - options for threads count, output folder
 
 Depends:
-- libssh-4			>= 0.6.3
+- libssh-4		>= 0.6.3
 
 Build Depends:
 - libssh-dev		>= 0.6.3
-- debhelper			>= 9.0.0
-- cmake				>= 3.0.2
+- debhelper		>= 9.0.0
+- cmake			>= 3.0.2
